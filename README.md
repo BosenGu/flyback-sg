@@ -50,14 +50,14 @@ npm run dev
 
 ## 环境变量
 
-复制 `.env.example` 为 `.env.local`，并填入 Supabase 配置：
+Supabase 配置是可选项。未配置时，页面会使用静态 mock 数据，适合作品集 demo 展示；如果后续接入真实数据库，可以复制 `.env.example` 为 `.env.local` 并填入：
 
 ```bash
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-为了保留 no-code 导出 demo 的可运行性，代码中仍保留了一组 fallback 配置。正式展示或部署时，建议优先使用环境变量。
+不要把 `.env.local` 提交到 GitHub。当前代码不会在仓库中内置 no-code 平台的 fallback 地址或 token。
 
 ## 项目结构
 
@@ -95,7 +95,9 @@ flyback-sg-flight-messages
 3. Framework Preset 选择 Vite。
 4. Build Command 使用 `npm run build`。
 5. Output Directory 使用 `build`。
-6. 在 Vercel Environment Variables 中配置 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_ANON_KEY`。
+6. 如需连接真实 Supabase，在 Vercel Environment Variables 中配置 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_ANON_KEY`；仅展示 mock demo 时可以先不配置。
+
+仓库已提供 `vercel.json`，Vercel 导入时会自动使用 `npm run build` 和 `build` 输出目录。
 
 更完整的步骤见 [DEPLOYMENT.md](./DEPLOYMENT.md)。
 

@@ -26,13 +26,13 @@ npm run preview
 
 ## 2. 配置环境变量
 
-复制环境变量模板：
+Supabase 配置是可选项。仅展示当前 mock demo 时，可以先跳过这一节；如果后续接入真实数据库，再复制环境变量模板：
 
 ```bash
 cp .env.example .env.local
 ```
 
-填入 Supabase 配置：
+并填入 Supabase 配置：
 
 ```bash
 VITE_SUPABASE_URL=your-supabase-url
@@ -83,7 +83,9 @@ npm run build
 build
 ```
 
-7. 在 Environment Variables 中添加：
+仓库已提供 `vercel.json`，会明确告诉 Vercel 使用 `npm run build` 和 `build` 输出目录。你也可以在导入页面确认这些设置是否一致。
+
+7. 如果需要连接真实 Supabase，在 Environment Variables 中添加：
 
 ```bash
 VITE_SUPABASE_URL
@@ -111,7 +113,7 @@ VITE_SUPABASE_ANON_KEY
 
 ### Supabase 数据加载失败
 
-先检查 Vercel 环境变量是否配置正确。当前 demo 保留了 fallback 配置，即使远程数据失败，也会回退到 mock 数据用于展示。
+先检查 Vercel 环境变量是否配置正确。当前 demo 没有把 no-code 平台的 fallback 地址写入仓库；未配置 Supabase 或远程数据失败时，页面会回退到 mock 数据用于展示。
 
 ### Output Directory 不匹配
 

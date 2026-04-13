@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plane, Clock, Luggage, ExternalLink, Shield, Star, GraduationCap, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
 
 // 默认 OTA 供应商数据
 const DEFAULT_OTA_PROVIDERS = [

@@ -74,7 +74,7 @@ const FlightCard = ({ flight, onViewDetails, onOpenChat, index = 0 }) => {
   // 获取OTA最低价格
   useEffect(() => {
     const fetchMinPrice = async () => {
-      if (!id) {
+      if (!id || !supabase) {
         setLoading(false);
         return;
       }

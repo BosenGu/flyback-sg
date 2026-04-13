@@ -57,6 +57,8 @@ const Index = () => {
   }, []);
 
   const loadRealFlights = async () => {
+    if (!supabase) return;
+
     try {
       const { data, error } = await supabase
         .from('flights')
@@ -208,6 +210,12 @@ const Index = () => {
 
   const handleViewDetails = async (flight) => {
     setSelectedFlight(flight);
+
+    if (!supabase) {
+      setOtaPrices([]);
+      setBookingModalOpen(true);
+      return;
+    }
     
     try {
       const { data, error } = await supabase

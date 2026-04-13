@@ -41,6 +41,12 @@ const ExplorePage = () => {
 
   const fetchChinaFlights = async () => {
     setLoading(true);
+    if (!supabase) {
+      setFlights(getMockFlights());
+      setLoading(false);
+      return;
+    }
+
     try {
       // 从 Flights 表获取数据，按价格排序
       const { data, error } = await supabase
