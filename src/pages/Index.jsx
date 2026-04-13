@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, MapPin, ArrowUpDown, Sparkles, GraduationCap, Users, Heart, Clock, Hotel, Car, Trash2, ChevronDown } from 'lucide-react';
+import { Plane, MapPin, ArrowUpDown, Sparkles, GraduationCap, Users, Heart, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
@@ -13,18 +13,21 @@ import PriceAlert from '@/components/flights/PriceAlert';
 import { supabase } from '@/integrations/supabase/client';
 import { AIRLINE_MAP, CITY_CODE_MAP, MOCK_FLIGHTS } from '@/data/flights';
 
-// 金刚区配置
-const KING_KONG_ITEMS = [
-  { id: 'flight', icon: Plane, label: '机票', active: true, color: '#00A5FF' },
-  { id: 'hotel', icon: Hotel, label: '酒店', active: false, color: '#FF8A2C' },
-  { id: 'car', icon: Car, label: '租车', active: false, color: '#10B981' },
+const RECENT_SEARCHES = [
+  { id: 1, from: '新加坡', to: '成都', date: '2026-05-30' },
+  { id: 2, from: '新加坡', to: '上海', date: '2026-06-15' },
 ];
 
-// 模拟最近搜索数据
-const RECENT_SEARCHES = [
-  { id: 1, from: '新加坡', to: '成都', date: '2026年5月30日', price: '¥799' },
-  { id: 2, from: '新加坡', to: '上海', date: '2026年6月15日', price: '¥899' },
-];
+const getFlightsByDestination = (flights, destination) => {
+  if (!destination) return [...flights];
+  const targetCode = CITY_CODE_MAP[destination];
+  return flights.filter(f => f.destCode === targetCode || f.arrivalCity === destination);
+};
+
+const formatRecentDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+};
 
 const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
@@ -37,19 +40,67 @@ const Index = () => {
   const [sortBy, setSortBy] = useState('price');
   const [otaPrices, setOtaPrices] = useState([]);
   const [currentDestination, setCurrentDestination] = useState('');
-  const [activeKingKong, setActiveKingKong] = useState('flight');
+  const [currentTripType, setCurrentTripType] = useState('oneway');
+  const [isInboundToSingapore, setIsInboundToSingapore] = useState(false);
   
   // 分页相关状态
   const [displayCount, setDisplayCount] = useState(10);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   
   const [filters, setFilters] = useState({
-    stops: ['direct'],
+    stops: ['direct', 'one'],
     minPrice: 500,
     maxPrice: 5000,
     airlines: [],
     departureTime: []
   });
+
+  const recentSearches = useMemo(() => {
+    return RECENT_SEARCHES.map((search) => {
+      const destinationFlights = getFlightsByDestination(allFlights, search.to);
+      const lowestPrice = destinationFlights.length
+        ? Math.min(...destinationFlights.map((flight) => flight.price))
+        : null;
+
+      return {
+        ...search,
+        displayDate: formatRecentDate(search.date),
+        price: lowestPrice ? `¥${lowestPrice}` : '暂无',
+      };
+    });
+  }, [allFlights]);
+
+  const flightsForCounts = useMemo(() => {
+    let result = getFlightsByDestination(allFlights, currentDestination);
+
+    if (filters.stops && filters.stops.length > 0) {
+      result = result.filter(f => {
+        if (filters.stops.includes('direct') && f.stops === 0) return true;
+        if (filters.stops.includes('one') && f.stops === 1) return true;
+        if (filters.stops.includes('two') && f.stops >= 2) return true;
+        return false;
+      });
+    }
+
+    if (filters.minPrice !== undefined && filters.maxPrice !== undefined) {
+      result = result.filter(f => f.price >= filters.minPrice && f.price <= filters.maxPrice);
+    }
+
+    if (filters.departureTime && filters.departureTime.length > 0) {
+      result = result.filter(f => {
+        const hour = f.departureHour;
+        return filters.departureTime.some(time => {
+          if (time === 'morning') return hour >= 0 && hour < 6;
+          if (time === 'forenoon') return hour >= 6 && hour < 12;
+          if (time === 'afternoon') return hour >= 12 && hour < 18;
+          if (time === 'evening') return hour >= 18 && hour < 24;
+          return false;
+        });
+      });
+    }
+
+    return result;
+  }, [allFlights, currentDestination, filters.departureTime, filters.maxPrice, filters.minPrice, filters.stops]);
 
   // 从数据库加载真实航班数据
   useEffect(() => {
@@ -176,17 +227,11 @@ const Index = () => {
   const handleSearch = async (searchParams) => {
     setHasSearched(true);
     setCurrentDestination(searchParams.destination);
+    setCurrentTripType(searchParams.tripType || 'oneway');
+    setIsInboundToSingapore(Boolean(searchParams.isInboundToSingapore));
     setDisplayCount(10); // 重置显示数量
     
-    let filtered = [...allFlights];
-    
-    // 如果指定了目的地，过滤目的地
-    if (searchParams.destination) {
-      const targetCode = CITY_CODE_MAP[searchParams.destination];
-      filtered = filtered.filter(f => 
-        f.destCode === targetCode || f.arrivalCity === searchParams.destination
-      );
-    }
+    const filtered = getFlightsByDestination(allFlights, searchParams.destination);
     
     setFilteredFlights(filtered);
   };
@@ -205,6 +250,9 @@ const Index = () => {
       originCode: 'SIN',
       destination: city,
       departDate: params.get('date') ? new Date(params.get('date')) : new Date(),
+      tripType: 'oneway',
+      returnDate: null,
+      isInboundToSingapore: false,
     });
   }, []);
 
@@ -252,35 +300,6 @@ const Index = () => {
     }));
   };
 
-  // 金刚区点击处理 - 酒店和租车显示专用 Toast
-  const handleKingKongClick = (item) => {
-    if (item.id === 'flight') {
-      setActiveKingKong('flight');
-    } else if (item.id === 'hotel') {
-      // 酒店模块 - 显示留学生专享福利提示
-      toast.info('🏨 留学生专享福利对接中', {
-        description: '正在接入 Agoda/Booking 学生特惠 API，预计可享折上 85 折，敬请期待！',
-        duration: 3000,
-        style: {
-          background: 'linear-gradient(135deg, #00A5FF 0%, #0088DD 100%)',
-          color: 'white',
-          border: 'none',
-        },
-      });
-    } else if (item.id === 'car') {
-      // 租车模块 - 显示拼车回城功能提示
-      toast.info('🚗 拼车回城功能内测中', {
-        description: '正在匹配 SIN 飞往国内同城的高校校友，落地拼车更划算！',
-        duration: 3000,
-        style: {
-          background: 'linear-gradient(135deg, #FF8A2C 0%, #FF6B00 100%)',
-          color: 'white',
-          border: 'none',
-        },
-      });
-    }
-  };
-
   const clearRecentSearch = (e, id) => {
     e.stopPropagation();
     toast.success('已删除搜索记录');
@@ -292,7 +311,10 @@ const Index = () => {
       origin: '新加坡',
       originCode: 'SIN',
       destination: search.to,
-      departDate: new Date(search.date.replace(/[年月]/g, '-').replace('日', ''))
+      departDate: new Date(search.date),
+      tripType: 'oneway',
+      returnDate: null,
+      isInboundToSingapore: false,
     });
   };
 
@@ -413,38 +435,39 @@ const Index = () => {
           className="px-6 -mt-8 relative z-20"
         >
           <div className="max-w-5xl mx-auto space-y-8">
-            {/* 金刚区 */}
-            <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 p-6">
-              <div className="grid grid-cols-3 gap-4">
-                {KING_KONG_ITEMS.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleKingKongClick(item)}
-                    className={`flex flex-col items-center gap-3 p-6 rounded-xl transition-all duration-300 ${
-                      activeKingKong === item.id 
-                        ? 'bg-[#00A5FF]/10 ring-2 ring-[#00A5FF]' 
-                        : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    <div 
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300"
-                      style={{ 
-                        backgroundColor: activeKingKong === item.id ? item.color : '#F5F7FA',
-                        color: activeKingKong === item.id ? 'white' : item.color
-                      }}
-                    >
-                      <item.icon className="w-8 h-8" />
-                    </div>
-                    <span className={`font-semibold ${activeKingKong === item.id ? 'text-[#00A5FF]' : 'text-slate-700'}`}>
-                      {item.label}
+            <div className="relative overflow-hidden rounded-3xl bg-white p-6 shadow-xl shadow-sky-200/50 border border-white/70">
+              <div className="absolute right-0 top-0 h-40 w-40 translate-x-12 -translate-y-12 rounded-full bg-[#00A5FF]/15 blur-2xl" />
+              <div className="absolute bottom-0 left-0 h-32 w-32 -translate-x-10 translate-y-10 rounded-full bg-[#FF8A2C]/15 blur-2xl" />
+              <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-2xl bg-gradient-to-br from-[#00A5FF] to-[#0088DD] p-4 text-white shadow-lg shadow-sky-300/40">
+                    <Users className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-[#FF6B00]">
+                      新加坡社群圈
                     </span>
-                    {!item.active && (
-                      <span className="text-xs text-white bg-gradient-to-r from-[#FF8A2C] to-[#FF6B00] px-2 py-0.5 rounded-full">
-                        即将上线
-                      </span>
-                    )}
-                  </button>
-                ))}
+                    <h3 className="mt-3 text-2xl font-black text-slate-900">找同航班同学，顺路拼车去机场</h3>
+                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-600">
+                      按 NUS / NTU / SIM / SMU 等学校和航班方向聚合同路人，适合回国前拼车、到坡后落地同行。
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {['同航班聊天', '机场拼车', '学校生态圈', '到坡 Checklist'].map((tag) => (
+                        <span key={tag} className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-[#0088DD]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  className="btn-accent-gradient rounded-xl px-6 py-6 text-base font-bold"
+                  onClick={() => {
+                    window.location.hash = '/community';
+                  }}
+                >
+                  进入生态圈
+                </Button>
               </div>
             </div>
 
@@ -457,7 +480,7 @@ const Index = () => {
                 </h3>
               </div>
               <div className="space-y-3">
-                {RECENT_SEARCHES.map((search) => (
+                {recentSearches.map((search) => (
                   <button
                     key={search.id}
                     onClick={() => handleRecentSearchClick(search)}
@@ -471,7 +494,7 @@ const Index = () => {
                         <div className="font-semibold text-slate-800">
                           {search.from} <span className="text-slate-400 mx-1">→</span> {search.to}
                         </div>
-                        <div className="text-sm text-slate-500">{search.date}</div>
+                        <div className="text-sm text-slate-500">{search.displayDate}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -578,7 +601,11 @@ const Index = () => {
                 {/* 左侧筛选栏 */}
                 <div className="lg:w-64 flex-shrink-0">
                   <div className="sticky top-6">
-                    <FilterSidebar onFilterChange={handleFilterChange} filters={filters} />
+                    <FilterSidebar
+                      onFilterChange={handleFilterChange}
+                      filters={filters}
+                      flightsForCounts={flightsForCounts}
+                    />
                   </div>
                 </div>
 
@@ -587,8 +614,12 @@ const Index = () => {
                   {/* 排序与统计 */}
                   <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 flex items-center justify-between shadow-soft">
                     <div className="text-sm text-slate-600">
-                      找到 <span className="font-bold text-slate-800">{filteredFlights.length}</span> 个回国航班
-                      {currentDestination && <span className="ml-2 text-[#00A5FF]">飞往 {currentDestination}</span>}
+                      找到 <span className="font-bold text-slate-800">{filteredFlights.length}</span> 个{currentTripType === 'roundtrip' ? '往返参考' : '单程'}航班
+                      {currentDestination && (
+                        <span className="ml-2 text-[#00A5FF]">
+                          {isInboundToSingapore ? `${currentDestination} → 新加坡` : `新加坡 → ${currentDestination}`}
+                        </span>
+                      )}
                       <span className="ml-2 text-slate-400">(显示 {displayedFlights.length} 个)</span>
                     </div>
                     <div className="flex items-center gap-2">

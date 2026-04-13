@@ -81,238 +81,97 @@ const createBookingOptions = (basePrice, airlineUrl) => [
   },
 ];
 
-export const MOCK_FLIGHTS = [
-  {
-    id: 101,
-    airline: '新加坡航空',
-    flightNo: 'SQ830',
-    departureTime: '09:30',
-    arrivalTime: '15:05',
-    originCode: 'SIN',
-    destCode: 'PVG',
-    arrivalCity: '上海',
-    duration: '5h 35m',
-    durationMinutes: 335,
-    stops: 0,
-    isDirect: true,
-    price: 1880,
-    originalPrice: 2380,
-    trend: 'stable',
-    baggage: '30kg',
-    departureHour: 9,
-    date: '2026-05-30',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，航线参考公开航司网络信息',
-    bookingOptions: createBookingOptions(1880, 'https://www.singaporeair.com'),
-  },
-  {
-    id: 102,
-    airline: '酷航',
-    flightNo: 'TR188',
-    departureTime: '16:45',
-    arrivalTime: '22:05',
-    originCode: 'SIN',
-    destCode: 'HGH',
-    arrivalCity: '杭州',
-    duration: '5h 20m',
-    durationMinutes: 320,
-    stops: 0,
-    isDirect: true,
-    price: 980,
-    originalPrice: 1380,
-    trend: 'low',
-    baggage: '20kg',
-    departureHour: 16,
-    date: '2026-06-02',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，廉航票价不含部分附加服务',
-    bookingOptions: createBookingOptions(980, 'https://www.flyscoot.com'),
-  },
-  {
-    id: 103,
-    airline: '国航',
-    flightNo: 'CA976',
-    departureTime: '09:15',
-    arrivalTime: '15:30',
-    originCode: 'SIN',
-    destCode: 'PEK',
-    arrivalCity: '北京',
-    duration: '6h 15m',
-    durationMinutes: 375,
-    stops: 0,
-    isDirect: true,
-    price: 1580,
-    originalPrice: 1980,
-    trend: 'stable',
-    baggage: '23kg',
-    departureHour: 9,
-    date: '2026-06-08',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，具体以出票平台为准',
-    bookingOptions: createBookingOptions(1580, 'https://www.airchina.com'),
-  },
-  {
-    id: 104,
-    airline: '东航',
-    flightNo: 'MU568',
-    departureTime: '14:20',
-    arrivalTime: '20:45',
-    originCode: 'SIN',
-    destCode: 'PVG',
-    arrivalCity: '上海',
-    duration: '6h 25m',
-    durationMinutes: 385,
-    stops: 0,
-    isDirect: true,
-    price: 1450,
-    originalPrice: 1850,
-    trend: 'low',
-    baggage: '23kg',
-    departureHour: 14,
-    date: '2026-06-15',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，具体以出票平台为准',
-    bookingOptions: createBookingOptions(1450, 'https://www.ceair.com'),
-  },
-  {
-    id: 105,
-    airline: '南航',
-    flightNo: 'CZ354',
-    departureTime: '16:45',
-    arrivalTime: '20:50',
-    originCode: 'SIN',
-    destCode: 'CAN',
-    arrivalCity: '广州',
-    duration: '4h 05m',
-    durationMinutes: 245,
-    stops: 0,
-    isDirect: true,
-    price: 1320,
-    originalPrice: 1620,
-    trend: 'high',
-    baggage: '23kg',
-    departureHour: 16,
-    date: '2026-06-18',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，华南方向通常航程更短',
-    bookingOptions: createBookingOptions(1320, 'https://www.csair.com'),
-  },
-  {
-    id: 106,
-    airline: '厦航',
-    flightNo: 'MF852',
-    departureTime: '15:05',
-    arrivalTime: '19:25',
-    originCode: 'SIN',
-    destCode: 'XMN',
-    arrivalCity: '厦门',
-    duration: '4h 20m',
-    durationMinutes: 260,
-    stops: 0,
-    isDirect: true,
-    price: 1180,
-    originalPrice: 1580,
-    trend: 'low',
-    baggage: '23kg',
-    departureHour: 15,
-    date: '2026-06-20',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，具体以出票平台为准',
-    bookingOptions: createBookingOptions(1180, 'https://www.xiamenair.com'),
-  },
-  {
-    id: 107,
-    airline: '深航',
-    flightNo: 'ZH9024',
-    departureTime: '17:40',
-    arrivalTime: '21:55',
-    originCode: 'SIN',
-    destCode: 'SZX',
-    arrivalCity: '深圳',
-    duration: '4h 15m',
-    durationMinutes: 255,
-    stops: 0,
-    isDirect: true,
-    price: 1260,
-    originalPrice: 1680,
-    trend: 'stable',
-    baggage: '23kg',
-    departureHour: 17,
-    date: '2026-06-22',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，具体以出票平台为准',
-    bookingOptions: createBookingOptions(1260, 'https://www.shenzhenair.com'),
-  },
-  {
-    id: 108,
-    airline: '国泰',
-    flightNo: 'CX714',
-    departureTime: '01:45',
-    arrivalTime: '05:45',
-    originCode: 'SIN',
-    destCode: 'HKG',
-    arrivalCity: '香港',
-    duration: '4h 00m',
-    durationMinutes: 240,
-    stops: 0,
-    isDirect: true,
-    price: 1420,
-    originalPrice: 1780,
-    trend: 'stable',
-    baggage: '23kg',
-    departureHour: 1,
-    date: '2026-06-25',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，香港可作为回国中转或目的地',
-    bookingOptions: createBookingOptions(1420, 'https://www.cathaypacific.com'),
-  },
-  {
-    id: 109,
-    airline: '吉祥航空',
-    flightNo: 'HO1606',
-    departureTime: '22:55',
-    arrivalTime: '04:30',
-    originCode: 'SIN',
-    destCode: 'PVG',
-    arrivalCity: '上海',
-    duration: '5h 35m',
-    durationMinutes: 335,
-    stops: 0,
-    isDirect: true,
-    price: 1360,
-    originalPrice: 1760,
-    trend: 'low',
-    baggage: '23kg',
-    departureHour: 22,
-    date: '2026-07-01',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，红眼航班适合低价优先用户',
-    bookingOptions: createBookingOptions(1360, 'https://www.juneyaoair.com'),
-  },
-  {
-    id: 110,
-    airline: '新加坡航空',
-    flightNo: 'SQ842',
-    departureTime: '12:30',
-    arrivalTime: '17:40',
-    originCode: 'SIN',
-    destCode: 'CTU',
-    arrivalCity: '成都',
-    duration: '5h 10m',
-    durationMinutes: 310,
-    stops: 0,
-    isDirect: true,
-    price: 2060,
-    originalPrice: 2580,
-    trend: 'high',
-    baggage: '30kg',
-    departureHour: 12,
-    date: '2026-07-05',
-    routeType: 'return-home',
-    sourceNote: 'Demo 估算价，西南方向旺季波动更明显',
-    bookingOptions: createBookingOptions(2060, 'https://www.singaporeair.com'),
-  },
+export const AIRLINE_OPTIONS = [
+  { id: 'singapore', name: '新加坡航空', prefix: 'SQ', url: 'https://www.singaporeair.com', baggage: '30kg', priceOffset: 520 },
+  { id: 'scoot', name: '酷航', prefix: 'TR', url: 'https://www.flyscoot.com', baggage: '20kg', priceOffset: -260 },
+  { id: 'airchina', name: '国航', prefix: 'CA', url: 'https://www.airchina.com', baggage: '23kg', priceOffset: 120 },
+  { id: 'chinaeastern', name: '东航', prefix: 'MU', url: 'https://www.ceair.com', baggage: '23kg', priceOffset: 40 },
+  { id: 'chinacs', name: '南航', prefix: 'CZ', url: 'https://www.csair.com', baggage: '23kg', priceOffset: 20 },
+  { id: 'xiamenair', name: '厦航', prefix: 'MF', url: 'https://www.xiamenair.com', baggage: '23kg', priceOffset: -80 },
+  { id: 'shenzhenair', name: '深航', prefix: 'ZH', url: 'https://www.shenzhenair.com', baggage: '23kg', priceOffset: -20 },
+  { id: 'cathay', name: '国泰', prefix: 'CX', url: 'https://www.cathaypacific.com', baggage: '23kg', priceOffset: 180 },
+  { id: 'juneyao', name: '吉祥航空', prefix: 'HO', url: 'https://www.juneyaoair.com', baggage: '23kg', priceOffset: -90 },
 ];
+
+const CITY_PROFILES = [
+  { city: '北京', code: 'PEK', basePrice: 1510, durationMinutes: 375, note: '华北方向适合寒暑假回国与北京中转。' },
+  { city: '上海', code: 'PVG', basePrice: 1390, durationMinutes: 335, note: '华东方向选择多，适合江浙沪同学。' },
+  { city: '广州', code: 'CAN', basePrice: 1180, durationMinutes: 245, note: '华南方向航程短，适合珠三角回家。' },
+  { city: '深圳', code: 'SZX', basePrice: 1220, durationMinutes: 255, note: '深圳和大湾区方向适合假期短途往返。' },
+  { city: '成都', code: 'CTU', basePrice: 1620, durationMinutes: 310, note: '西南方向旺季波动更明显，适合提前关注。' },
+  { city: '西安', code: 'XIY', basePrice: 1540, durationMinutes: 330, note: '西北方向多经停组合，适合灵活日期比价。' },
+  { city: '杭州', code: 'HGH', basePrice: 1260, durationMinutes: 320, note: '杭州方向低价较多，适合江浙沪同学。' },
+  { city: '厦门', code: 'XMN', basePrice: 1120, durationMinutes: 260, note: '福建方向航程适中，学生票价常有惊喜。' },
+  { city: '香港', code: 'HKG', basePrice: 1080, durationMinutes: 240, note: '香港可作为目的地，也适合作为回国中转。' },
+];
+
+const DEPARTURE_TIMES = ['01:45', '07:25', '09:30', '12:30', '14:20', '16:45', '19:10', '22:55'];
+const TREND_SEQUENCE = ['low', 'stable', 'high', 'low', 'stable'];
+const TRANSFER_POINTS = ['香港', '曼谷', '吉隆坡', '厦门', '广州'];
+
+const pad = (value) => String(value).padStart(2, '0');
+
+const addMinutesToTime = (time, minutes) => {
+  const [hour, minute] = time.split(':').map(Number);
+  const total = (hour * 60 + minute + minutes) % (24 * 60);
+  return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+};
+
+const formatDuration = (minutes) => `${Math.floor(minutes / 60)}h ${pad(minutes % 60)}m`;
+
+const buildFlightNumber = (airline, city, cityIndex, variantIndex) => {
+  if (airline.prefix === 'SQ' && city.city === '上海' && variantIndex === 0) return 'SQ830';
+  if (airline.prefix === 'TR' && city.city === '杭州' && variantIndex === 0) return 'TR188';
+
+  const numeric = 800 + cityIndex * 18 + variantIndex * 7;
+  return `${airline.prefix}${numeric}`;
+};
+
+const buildFlightDate = (airline, city, cityIndex, airlineIndex, variantIndex) => {
+  if (airline.prefix === 'SQ' && city.city === '上海' && variantIndex === 0) return '2026-05-30';
+  if (airline.prefix === 'TR' && city.city === '杭州' && variantIndex === 0) return '2026-06-02';
+  return `2026-${pad(5 + ((cityIndex + variantIndex) % 4))}-${pad(18 + ((cityIndex * 2 + airlineIndex + variantIndex) % 10))}`;
+};
+
+const generateMockFlights = () => CITY_PROFILES.flatMap((city, cityIndex) =>
+  AIRLINE_OPTIONS.flatMap((airline, airlineIndex) =>
+    [0, 1].map((variantIndex) => {
+      const stops = variantIndex === 0 ? 0 : 1;
+      const departureTime = DEPARTURE_TIMES[(cityIndex + airlineIndex + variantIndex) % DEPARTURE_TIMES.length];
+      const durationMinutes = city.durationMinutes + stops * 70 + ((airlineIndex % 3) * 10) + variantIndex * 15;
+      const price = Math.max(
+        690,
+        city.basePrice + airline.priceOffset + variantIndex * 140 + ((cityIndex + airlineIndex) % 4) * 35
+      );
+
+      return {
+        id: 1000 + cityIndex * 100 + airlineIndex * 10 + variantIndex,
+        airline: airline.name,
+        flightNo: buildFlightNumber(airline, city, cityIndex, variantIndex),
+        departureTime,
+        arrivalTime: addMinutesToTime(departureTime, durationMinutes),
+        originCode: 'SIN',
+        destCode: city.code,
+        arrivalCity: city.city,
+        duration: formatDuration(durationMinutes),
+        durationMinutes,
+        stops,
+        isDirect: stops === 0,
+        price,
+        originalPrice: price + 360 + variantIndex * 120,
+        trend: TREND_SEQUENCE[(cityIndex + airlineIndex + variantIndex) % TREND_SEQUENCE.length],
+        baggage: airline.baggage,
+        departureHour: Number(departureTime.slice(0, 2)),
+        date: buildFlightDate(airline, city, cityIndex, airlineIndex, variantIndex),
+        routeType: 'return-home',
+        sourceNote: `${city.note} Demo 估算价，${stops === 0 ? '直飞优先' : `经${TRANSFER_POINTS[(cityIndex + airlineIndex) % TRANSFER_POINTS.length]}中转`}，实际以出票平台为准。`,
+        bookingOptions: createBookingOptions(price, airline.url),
+      };
+    })
+  )
+);
+
+export const MOCK_FLIGHTS = generateMockFlights();
 
 export const AIRLINE_MAP = {
   '酷航': 'scoot',

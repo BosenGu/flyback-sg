@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SlidersHorizontal, ChevronDown, ChevronUp, Plane, Clock, DollarSign } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-const FilterSidebar = ({ onFilterChange, filters = {} }) => {
+import { AIRLINE_MAP, AIRLINE_OPTIONS } from '@/data/flights';
+
+const FilterSidebar = ({ onFilterChange, filters = {}, flightsForCounts = [] }) => {
   const [expanded, setExpanded] = useState({
     stops: true,
     price: true,
@@ -13,7 +15,7 @@ const FilterSidebar = ({ onFilterChange, filters = {} }) => {
   
   // 本地状态，用于即时响应用户操作
   const [localFilters, setLocalFilters] = useState({
-    stops: filters.stops || ['direct'],
+    stops: filters.stops || ['direct', 'one'],
     minPrice: filters.minPrice || 500,
     maxPrice: filters.maxPrice || 5000,
     airlines: filters.airlines || [],
@@ -34,7 +36,7 @@ const FilterSidebar = ({ onFilterChange, filters = {} }) => {
     
     if (hasChanged) {
       setLocalFilters({
-        stops: filters.stops || ['direct'],
+        stops: filters.stops || ['direct', 'one'],
         minPrice: filters.minPrice || 500,
         maxPrice: filters.maxPrice || 5000,
         airlines: filters.airlines || [],
@@ -56,17 +58,28 @@ const FilterSidebar = ({ onFilterChange, filters = {} }) => {
     setExpanded(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const airlines = [
-    { id: 'scoot', name: '酷航', count: 15 },
-    { id: 'singapore', name: '新加坡航空', count: 15 },
-    { id: 'airchina', name: '国航', count: 15 },
-    { id: 'chinaeastern', name: '东航', count: 15 },
-    { id: 'chinacs', name: '南航', count: 15 },
-    { id: 'xiamenair', name: '厦航', count: 8 },
-    { id: 'shenzhenair', name: '深航', count: 6 },
-    { id: 'cathay', name: '国泰', count: 9 },
-    { id: 'juneyao', name: '吉祥航空', count: 15 }
-  ];
+  const airlineCounts = useMemo(() => {
+    return flightsForCounts.reduce((counts, flight) => {
+      const airlineId = AIRLINE_MAP[flight.airline];
+      if (!airlineId) return counts;
+      counts[airlineId] = (counts[airlineId] || 0) + 1;
+      return counts;
+    }, {});
+  }, [flightsForCounts]);
+
+  const airlines = useMemo(() => {
+    return AIRLINE_OPTIONS.map((airline) => ({
+      id: airline.id,
+      name: airline.name,
+      count: airlineCounts[airline.id] || 0,
+    }));
+  }, [airlineCounts]);
+
+  const stopOptions = useMemo(() => ([
+    { id: 'direct', label: '直飞', count: flightsForCounts.filter((flight) => flight.stops === 0).length },
+    { id: 'one', label: '转机1次', count: flightsForCounts.filter((flight) => flight.stops === 1).length },
+    { id: 'two', label: '转机2次+', count: flightsForCounts.filter((flight) => flight.stops >= 2).length },
+  ]), [flightsForCounts]);
 
   const handleStopsChange = (stop) => {
     setLocalFilters(prev => {
@@ -192,11 +205,7 @@ const FilterSidebar = ({ onFilterChange, filters = {} }) => {
             animate={{ height: 'auto', opacity: 1 }}
             className="space-y-2 mt-2"
           >
-            {[
-              { id: 'direct', label: '直飞', count: 288 },
-              { id: 'one', label: '转机1次', count: 48 },
-              { id: 'two', label: '转机2次+', count: 0 }
-            ].map((stop) => (
+            {stopOptions.map((stop) => (
               <label key={stop.id} className="flex items-center justify-between py-1 cursor-pointer group">
                 <div className="flex items-center gap-2">
                   <Checkbox 
@@ -332,7 +341,7 @@ const FilterSidebar = ({ onFilterChange, filters = {} }) => {
                   />
                   <span className="text-sm text-slate-600 group-hover:text-slate-800">{airline.name}</span>
                 </div>
-                <span className="text-xs text-slate-400">~{airline.count}</span>
+                <span className="text-xs text-slate-400">{airline.count}</span>
               </label>
             ))}
           </motion.div>
